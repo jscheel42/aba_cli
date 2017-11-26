@@ -9,7 +9,6 @@ defmodule AbaCLI.Talent do
       if hero_db == nil do
         IO.puts "Hero '#{hero_name}' not found in database."
       else
-        hero_id = hero_db.id
         talents = Map.get(hero, "talents")
         Enum.each talents, fn talent ->
           ability = Map.get(talent, "ability")
@@ -24,7 +23,7 @@ defmodule AbaCLI.Talent do
           title = Map.get(talent, "title")
       
           result =
-            case AbaModel.Repo.get_by(AbaModel.Talent, [name: name, hero_id: hero_id]) do
+            case AbaModel.Repo.get_by(AbaModel.Talent, [name: name, hero_id: hero_db.id]) do
               nil -> %AbaModel.Talent{
                 ability: ability,
                 cooldown: cooldown,
