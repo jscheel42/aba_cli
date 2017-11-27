@@ -2,10 +2,10 @@ defmodule AbaCLI.Replay do
   import Ecto.Query
   
   def get_next_replay_id() do
-    # Check DB for MAX replays.api_id + 1
-    query = from replay in AbaModel.Replay,
-            select: max(replay.api_id)
-    AbaModel.Repo.one(query) + 1
+    case AbaModel.Repo.one(from r in AbaModel.Replay, select: count(r.id)) do
+      0 -> 1
+      _ -> AbaModel.Repo.one(from replay in AbaModel.Replay, select: max(replay.api_id)) + 1
+    end
   end
 
   def db_update_replay(api_id) do
@@ -28,7 +28,11 @@ defmodule AbaCLI.Replay do
       case bans do
         nil -> []
         bans -> Enum.reduce List.flatten(bans), [], fn (ban, acc) ->
-          [ AbaModel.Repo.get_by(AbaModel.Hero, name: ban) | acc ]
+          if ban != nil do
+            [ AbaModel.Repo.get_by(AbaModel.Hero, name: ban) | acc ]
+          else
+            acc
+          end
         end
       end
     
@@ -45,6 +49,20 @@ defmodule AbaCLI.Replay do
         team = Map.get(player, "team")
         winner = Map.get(player, "winner")
 
+        # Iterate through nested talents map
+        talents = 
+          case  Map.get(player, "talents") do
+            nil -> %{"1": nil, "4": nil, "7": nil, "10": nil, "13": nil, "16": nil, "20": nil}
+            map -> map
+          end
+        talent1 = Map.get(talents, "1")
+        talent4 = Map.get(talents, "4")
+        talent7 = Map.get(talents, "7")
+        talent10 = Map.get(talents, "10")
+        talent13 = Map.get(talents, "13")
+        talent16 = Map.get(talents, "16")
+        talent20 = Map.get(talents, "20")    
+        
         # Iterate through nested score map
         scores = Map.get(player, "score")
         score_level = Map.get(scores, "level")
@@ -72,14 +90,6 @@ defmodule AbaCLI.Replay do
 
         # Get hero as a db reference for later association
         hero_db = AbaModel.Repo.get_by(AbaModel.Hero, name: hero_name)
-
-        # Get talents as db references for later association
-        talents = Map.get(player, "talents") |> Map.values
-        IO.inspect talents
-        talents_db =
-          Enum.reduce talents, [], fn (talent, acc) ->
-            [ AbaModel.Repo.get_by(AbaModel.Talent, [name: talent, hero_id: hero_db.id]) | acc ]
-          end
   
         player_db =
           case AbaModel.Repo.get_by(AbaModel.Player, [
@@ -97,6 +107,13 @@ defmodule AbaCLI.Replay do
               silenced: silenced,
               team: team,
               winner: winner,
+              talent1: talent1,
+              talent4: talent4,
+              talent7: talent7,
+              talent10: talent10,
+              talent13: talent13,
+              talent16: talent16,
+              talent20: talent20,
               score_level: score_level,
               score_kills: score_kills,
               score_assists: score_assists,
@@ -123,7 +140,6 @@ defmodule AbaCLI.Replay do
             db_player -> db_player
           end
           |> AbaModel.Repo.preload(:hero)
-          |> AbaModel.Repo.preload(:talents)
           |> AbaModel.Player.changeset(%{
             battletag: battletag,
             blizz_id: blizz_id,
@@ -132,6 +148,13 @@ defmodule AbaCLI.Replay do
             silenced: silenced,
             team: team,
             winner: winner,
+            talent1: talent1,
+            talent4: talent4,
+            talent7: talent7,
+            talent10: talent10,
+            talent13: talent13,
+            talent16: talent16,
+            talent20: talent20,
             score_level: score_level,
             score_kills: score_kills,
             score_assists: score_assists,
@@ -156,7 +179,6 @@ defmodule AbaCLI.Replay do
             score_meta_experience: score_meta_experience
           })
           |> Ecto.Changeset.put_assoc(:hero, [hero_db])
-          |> Ecto.Changeset.put_assoc(:talents, talents_db)
           
           [ player_db | acc ]
       end
