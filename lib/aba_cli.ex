@@ -21,5 +21,6 @@ defmodule AbaCLI do
     AbaCLI.Hero.db_update_heroes
     AbaCLI.Ability.db_update_abilities
     AbaCLI.Talent.db_update_talents
+    AbaCLI.Replay.db_update_replays
   end
 end
