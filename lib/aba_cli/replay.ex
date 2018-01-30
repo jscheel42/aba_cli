@@ -4,13 +4,21 @@ defmodule AbaCLI.Replay do
   def get_next_replay_id() do
     case AbaModel.Repo.one(from r in AbaModel.Replay, select: count(r.id)) do
       0 -> 1
-      _ -> AbaModel.Repo.one(from replay in AbaModel.Replay, select: max(replay.api_id)) + 1
+      _ -> AbaModel.Repo.one(from replay in AbaModel.Replay, select: max(replay.api_replay_id)) + 1
     end
   end
 
-  def db_update_replay(api_id) do
-    {:ok, replay} = AbaAPI.Replay.replay(api_id)
-    api_id = Map.get(replay, "id")
+  def db_update_replay(api_replay_id) do
+    {:ok, replay} = AbaAPI.Replay.replay(api_replay_id)
+    # replay = AbaAPI.Replay.replay(api_replay_id)
+    IO.inspect replay
+
+    # case AbaAPI.Replay.replay(api_replay_id) do
+    #   { :error, status_code } -> 
+    #   { :ok, replay } -> 
+    # end
+
+    api_replay_id = Map.get(replay, "id")
     filename = Map.get(replay, "filename")
     fingerprint = Map.get(replay, "fingerprint")
     game_type = Map.get(replay, "game_type")
@@ -51,7 +59,7 @@ defmodule AbaCLI.Replay do
 
         # Iterate through nested talents map
         talents = 
-          case  Map.get(player, "talents") do
+          case Map.get(player, "talents") do
             nil -> %{"1": nil, "4": nil, "7": nil, "10": nil, "13": nil, "16": nil, "20": nil}
             map -> map
           end
@@ -64,7 +72,37 @@ defmodule AbaCLI.Replay do
         talent20 = Map.get(talents, "20")    
         
         # Iterate through nested score map
-        scores = Map.get(player, "score")
+        # scores = Map.get(player, "score")
+
+        scores =
+          case Map.get(player, "score") do
+            nil -> %{
+              "level": nil,
+              "kills": nil,
+              "assists": nil,
+              "takedowns": nil,
+              "deaths": nil,
+              "highest_kill_streak": nil,
+              "hero_damage": nil,
+              "siege_damage": nil,
+              "structure_damage": nil,
+              "minion_damage": nil,
+              "creep_damage": nil,
+              "summon_damage": nil,
+              "time_cc_enemy_heroes": nil,
+              "healing": nil,
+              "self_healing": nil,
+              "damage_taken": nil,
+              "experience_contribution": nil,
+              "town_kills": nil,
+              "time_spent_dead": nil,
+              "merc_camp_captures": nil,
+              "watch_tower_captures": nil,
+              "meta_experience": nil              
+            }
+            map -> map
+          end
+
         score_level = Map.get(scores, "level")
         score_kills = Map.get(scores, "kills")
         score_assists = Map.get(scores, "assists")
@@ -93,13 +131,11 @@ defmodule AbaCLI.Replay do
   
         player_db =
           case AbaModel.Repo.get_by(AbaModel.Player, [
-            blizz_id: blizz_id,
-            score_experience_contribution: score_experience_contribution,
-            score_hero_damage: score_hero_damage,
-            score_minion_damage: score_minion_damage,
-            score_siege_damage: score_siege_damage,
+            api_replay_id: api_replay_id,
+            blizz_id: blizz_id
           ]) do
             nil -> %AbaModel.Player{
+              api_replay_id: api_replay_id,
               battletag: battletag,
               blizz_id: blizz_id,
               hero_level: hero_level,
@@ -141,6 +177,7 @@ defmodule AbaCLI.Replay do
           end
           |> AbaModel.Repo.preload(:hero)
           |> AbaModel.Player.changeset(%{
+            api_replay_id: api_replay_id,
             battletag: battletag,
             blizz_id: blizz_id,
             hero_level: hero_level,
@@ -184,9 +221,9 @@ defmodule AbaCLI.Replay do
       end
     
     result =
-      case AbaModel.Repo.get_by(AbaModel.Replay, [api_id: api_id]) do
+      case AbaModel.Repo.get_by(AbaModel.Replay, [api_replay_id: api_replay_id]) do
         nil -> %AbaModel.Replay{
-          api_id: api_id,
+          api_replay_id: api_replay_id,
           filename: filename,
           fingerprint: fingerprint,
           game_type: game_type,
@@ -203,7 +240,7 @@ defmodule AbaCLI.Replay do
       |> AbaModel.Repo.preload(:bans)
       |> AbaModel.Repo.preload(:players)
       |> AbaModel.Replay.changeset(%{
-        api_id: api_id,
+        api_replay_id: api_replay_id,
         filename: filename,
         fingerprint: fingerprint,
         game_type: game_type,
@@ -219,10 +256,11 @@ defmodule AbaCLI.Replay do
       |> Ecto.Changeset.put_assoc(:players, players_db)
       |> AbaModel.Repo.insert_or_update
 
-    case result do
-      {:ok, struct} -> IO.inspect struct
-      {:error, changeset} -> IO.inspect changeset
-    end
+    result
+    # case result do
+    #   {:ok, struct} -> IO.inspect struct
+    #   {:error, changeset} -> IO.inspect changeset
+    # end
   end
 
   def db_update_replays do
