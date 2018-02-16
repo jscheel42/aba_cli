@@ -11,11 +11,11 @@ defmodule AbaCLI.Talent do
       else
         talents = Map.get(hero, "talents")
         Enum.each talents, fn talent ->
-          ability = Map.get(talent, "ability")
+          # ability = Map.get(talent, "ability")
           cooldown = Map.get(talent, "cooldown")
           description = Map.get(talent, "description")
           icon = Map.get(talent, "icon")
-          icon_url = Map.get(talent, "icon_url") |> Map.values |> List.first
+          # icon_url = Map.get(talent, "icon_url") |> Map.values |> List.first
           level = Map.get(talent, "level")
           mana_cost = Map.get(talent, "mana_cost")
           name = Map.get(talent, "name")
@@ -25,11 +25,11 @@ defmodule AbaCLI.Talent do
           result =
             case AbaModel.Repo.get_by(AbaModel.Talent, [name: name, hero_id: hero_db.id]) do
               nil -> %AbaModel.Talent{
-                ability: ability,
+                # ability: ability,
                 cooldown: cooldown,
                 description: description,
                 icon: icon,
-                icon_url: icon_url,
+                # icon_url: icon_url,
                 level: level,
                 mana_cost: mana_cost,
                 name: name,
@@ -40,11 +40,11 @@ defmodule AbaCLI.Talent do
             end
             |> AbaModel.Repo.preload(:hero)
             |> AbaModel.Talent.changeset(%{
-              ability: ability,
+              # ability: ability,
               cooldown: cooldown,
               description: description,
               icon: icon,
-              icon_url: icon_url,
+              # icon_url: icon_url,
               level: level,
               mana_cost: mana_cost,
               name: name,

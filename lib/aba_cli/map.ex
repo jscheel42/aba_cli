@@ -6,18 +6,18 @@ defmodule AbaCLI.Map do
       name = Map.get(map, "name")
       translations = Map.get(map, "translations")
 
-      result = 
+      map_result = 
         case AbaModel.Repo.get_by(AbaModel.Map, name: name) do
-          nil -> %AbaModel.Map{name: name, translations: translations}
-          db_map -> db_map
+          nil -> %AbaModel.Map{name: name}
+          map -> map
         end
-        |> AbaModel.Map.changeset(%{name: name, translations: translations})
-        |> AbaModel.Repo.insert_or_update      
-      case result do
-        {:ok, struct} -> IO.inspect struct
+        |> AbaModel.Map.changeset(%{name: name})
+        |> AbaModel.Repo.insert_or_update()
+
+      case map_result do
+        {:ok, translation_db} -> IO.inspect translation_db
         {:error, changeset} -> IO.inspect changeset
       end
     end
   end
-
 end
