@@ -57,35 +57,6 @@ defmodule AbaCLI.Talent do
             })
             |> AbaModel.Repo.insert_or_update
 
-          # heroes_db =
-          #   talent_db
-          #   |> AbaModel.Repo.preload(:heroes)
-          #   |> Map.get(:heroes)
-
-          # heroes_db =
-          #   case Enum.member?(heroes_db, hero_db) do
-          #     false -> heroes_db ++ hero_db
-          #     true -> heroes_db
-          #   end
-
-          # {:ok, talent_db} =
-          #   talent_db
-          #   |> AbaModel.Repo.preload(:heroes)
-          #   |> AbaModel.Talent.changeset(%{
-          #     ability_id: ability_id,
-          #     cooldown: cooldown,
-          #     current: true,
-          #     description: description,
-          #     icon: icon,
-          #     level: level,
-          #     mana_cost: mana_cost,
-          #     name: name,
-          #     sort: sort,
-          #     title: title
-          #   })
-          #   |> Ecto.Changeset.put_assoc(:heroes, heroes_db)
-          #   |> AbaModel.Repo.insert_or_update
-
           {:ok, hero_talent_db} =
             case AbaModel.Repo.get_by(AbaModel.HeroTalent, [hero_id: hero_db.id, talent_id: talent_db.id]) do
               nil -> %AbaModel.HeroTalent{
@@ -102,26 +73,9 @@ defmodule AbaCLI.Talent do
             })
             |> Ecto.Changeset.put_assoc(:hero, hero_db)
             |> Ecto.Changeset.put_assoc(:talent, talent_db)
-            |> AbaModel.Repo.insert_or_update
-
-          # if AbaModel.Repo.get_by(AbaModel.HeroTalent, [hero_id: hero_db.id, talent_id: talent_db.id]) == nil do
-          #   %AbaModel.HeroTalent{
-          #     hero_id: hero_db.id,
-          #     talent_id: talent_db.id
-          #   }
-          #   |> AbaModel.Repo.preload(:hero)
-          #   |> AbaModel.Repo.preload(:talent)
-          #   |> AbaModel.HeroTalent.changeset(%{
-          #     hero_id: hero_db.id,
-          #     talent_id: talent_db.id
-          #   })
-          #   |> Ecto.Changeset.put_assoc(:hero, hero_db)
-          #   |> Ecto.Changeset.put_assoc(:talent, talent_db)
-          #   |> AbaModel.Repo.insert
-          # end
+            |> AbaModel.Repo.insert_or_update     
           
-          # IO.inspect hero_talent_db
-          
+          hero_talent_db
         end  
       end
     end
