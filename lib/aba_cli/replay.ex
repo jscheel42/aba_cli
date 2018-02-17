@@ -10,13 +10,6 @@ defmodule AbaCLI.Replay do
 
   def db_update_replay(id) do
     {:ok, replay} = AbaAPI.Replay.replay(id)
-    # replay = AbaAPI.Replay.replay(api_replay_id)
-    # IO.inspect replay
-
-    # case AbaAPI.Replay.replay(api_replay_id) do
-    #   { :error, status_code } -> 
-    #   { :ok, replay } -> 
-    # end
 
     filename = Map.get(replay, "filename")
     fingerprint = Map.get(replay, "fingerprint")
@@ -62,118 +55,14 @@ defmodule AbaCLI.Replay do
       |> Ecto.Changeset.put_assoc(:game_map, map_db)
       |> AbaModel.Repo.insert_or_update()
 
-    # case map_result do
-    #   {:ok, translation_db} -> IO.inspect translation_db
-    #   {:error, changeset} -> IO.inspect changeset
-    # end
+    # BANS
+    Map.get(replay, "bans")
+    |> AbaCLI.Ban.db_update_bans(replay_db)
 
-    # # api_replay_id = Map.get(replay, "id")
-    # filename = Map.get(replay, "filename")
-    # fingerprint = Map.get(replay, "fingerprint")
-    # game_type = Map.get(replay, "game_type")
-    # game_date = Map.get(replay, "game_date")
-    # game_length = Map.get(replay, "game_length")
-    # game_map = Map.get(replay, "game_map")
-    # game_version = Map.get(replay, "game_version")
-    # region = Map.get(replay, "region")
-    # size = Map.get(replay, "size")
-    # url = Map.get(replay, "url")
+    # PLAYERS
+    Map.get(replay, "players")
+    |> AbaCLI.Player.db_update_players(replay_db)
 
-    # Get associated bans based on heroes table
-    # Map.get(replay, "bans")
-    # |> Enum.at(0)
-    # |> Enum.at(0)
-
-    # Ugly but functional
-    bans = Map.get(replay, "bans")
-    case bans do
-      nil -> nil
-      bans ->
-        Enum.each 0..1, fn team ->
-          case Enum.at(bans, team) do
-            nil -> nil
-            team_bans ->
-              Enum.each 0..1, fn index ->
-                case Enum.at(team_bans, index) do
-                  nil -> nil
-                  hero_fullname ->
-                    hero_db = AbaModel.Repo.get_by!(AbaModel.Hero, name: hero_fullname)
-                    case AbaModel.Repo.get_by(AbaModel.Ban, [replay_id: replay_db.id, index: index, team: team]) do
-                      nil -> %AbaModel.Ban{
-                        hero_name: hero_db.attribute_id,
-                        index: index,
-                        team: team
-                      }
-                      ban_db -> ban_db    
-                    end
-                    |> AbaModel.Repo.preload(:hero)
-                    |> AbaModel.Repo.preload(:replay)
-                    |> AbaModel.Ban.changeset(%{
-                      hero_name: hero_db.attribute_id,
-                      index: index,
-                      team: team
-                    })
-                    |> Ecto.Changeset.put_assoc(:hero, hero_db)
-                    |> Ecto.Changeset.put_assoc(:replay, replay_db)
-                    |> AbaModel.Repo.insert_or_update  
-                end        
-              end
-          end
-        end
-    end
-
-
-
-    # [bans_team_1 | [bans_team_2]] = Map.get(replay, "bans")
-    # [ban_team_1_index_0, ban_team_1_index_1] = bans_team_1
-    # [ban_team_2_index_0, ban_team_2_index_1] = bans_team_2
-
-    # IO.puts "BANS TEAM 1"
-    # IO.inspect bans_team_1
-    # IO.puts "BANS TEAM 2"
-    # IO.inspect bans_team_2
-    # IO.puts "BAN 1 0"
-    # IO.inspect ban_team_1_index_0
-    # IO.puts "endzone"
-
-    # Enum.each bans, fn ban ->
-      
-    # end
-    
-    # {:ok, ban_db} =
-    #   case AbaModel.Repo.get_by(AbaModel.Ban, [hero_id: hero_id, name: name]) do
-    #     nil -> %AbaModel.Ban{
-    #       hero_name: hero_name,
-    #       index: index,
-    #       team: team
-    #     }
-    #     ban_db -> ban_db    
-    #   end
-    #   |> AbaModel.Repo.preload(:hero)
-    #   |> AbaModel.Repo.preload(:replay)
-    #   |> AbaModel.Ban.changeset(%{
-    #     hero_name: hero_name,
-    #     index: index,
-    #     team: team
-    #   })
-    #   |> Ecto.Changeset.put_assoc(:hero, hero_db)
-    #   |> Ecto.Changeset.put_assoc(:replay, replay_db)
-    #   |> AbaModel.Repo.insert_or_update
-
-
-    # IO.inspect bans
-    # bans_db =
-    #   case bans do
-    #     nil -> []
-    #     bans -> Enum.reduce List.flatten(bans), [], fn (ban, acc) ->
-    #       if ban != nil do
-    #         [ AbaModel.Repo.get_by(AbaModel.Hero, name: ban) | acc ]
-    #       else
-    #         acc
-    #       end
-    #     end
-    #   end
-    
     # # Accumulate all players as db references in a list for later association
     # players = Map.get(replay, "players")
     # players_db =
