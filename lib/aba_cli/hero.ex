@@ -1,7 +1,7 @@
 defmodule AbaCLI.Hero do
 
   def db_update_heroes() do
-    {:ok, heroes} = AbaAPI.Hero.heroes
+    {:ok, heroes} = AbaAPI.Hero.heroes()
     Enum.each heroes, fn hero ->
       attribute_id = Map.get(hero, "attribute_id")
       name = Map.get(hero, "name")
@@ -10,7 +10,7 @@ defmodule AbaCLI.Hero do
       role = Map.get(hero, "role")
       type = Map.get(hero, "type")
 
-      {:ok, _} =
+      {:ok, hero_db} =
         case AbaModel.Repo.get_by(AbaModel.Hero, name: name) do
           nil -> %AbaModel.Hero{
             attribute_id: attribute_id,
@@ -31,6 +31,10 @@ defmodule AbaCLI.Hero do
           type: type
         })
         |> AbaModel.Repo.insert_or_update()
+
+      # HERO TRANSLATIONS
+      Map.get(hero, "translations")
+      |> AbaCLI.HeroTranslation.db_update_hero_translation(hero_db)
     end
   end
 end
