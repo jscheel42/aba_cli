@@ -55,6 +55,12 @@ defmodule AbaCLI.Player do
         nil -> nil
         score -> AbaCLI.Score.db_update_score(score, player_db)
       end
+
+      # PLAYER TALENTS
+      case Map.get(player, "talents") do
+        nil -> nil
+        talents -> AbaCLI.PlayerTalent.db_update_player_talent(talents, player_db)
+      end
     end
   end
 end
