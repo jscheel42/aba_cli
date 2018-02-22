@@ -1,13 +1,34 @@
 defmodule AbaCLI.Talent do
   import Ecto.Query
   
+  def db_update_talents_current_status(heroes) do
+    talents =
+      Enum.reduce heroes, [], fn hero, acc ->
+        t = Map.get(hero, "talents")
+        acc ++ t
+      end
+
+    talent_id_list =
+      Enum.reduce talents, [], fn talent, acc ->
+        name = Map.get(talent, "name")
+        talent_db =
+          case AbaModel.Repo.get_by(AbaModel.Talent, name: name) do
+            nil -> raise "ERROR: TALENT #{name} NOT FOUND"
+            talent -> talent
+          end
+        acc ++ [talent_db.id]
+      end
+    
+    from(t in AbaModel.Talent, where: t.id in ^talent_id_list)
+    |> AbaModel.Repo.update_all(set: [current: true])
+
+    from(t in AbaModel.Talent, where: t.id not in ^talent_id_list)
+    |> AbaModel.Repo.update_all(set: [current: false])
+  end
+
   def db_update_talents() do
     {:ok, heroes} = AbaAPI.Hero.heroes
     
-    # Set all talents to current:false, we will set them to true during the import for talents which currently are in the API
-    # The talents in the API may or may not be the current talents in the game, need testing
-    AbaModel.Repo.update_all(from(t in AbaModel.Talent), set: [current: false])
-
     Enum.each heroes, fn hero ->
       hero_name = Map.get(hero, "name")
       hero_db = AbaModel.Repo.get_by(AbaModel.Hero, name: hero_name)
@@ -57,7 +78,7 @@ defmodule AbaCLI.Talent do
             })
             |> AbaModel.Repo.insert_or_update
 
-          {:ok, hero_talent_db} =
+          {:ok, _} =
             case AbaModel.Repo.get_by(AbaModel.HeroTalent, [hero_id: hero_db.id, talent_id: talent_db.id]) do
               nil -> %AbaModel.HeroTalent{
                 hero_id: hero_db.id,
@@ -74,10 +95,10 @@ defmodule AbaCLI.Talent do
             |> Ecto.Changeset.put_assoc(:hero, hero_db)
             |> Ecto.Changeset.put_assoc(:talent, talent_db)
             |> AbaModel.Repo.insert_or_update     
-          
-          hero_talent_db
         end  
       end
     end
+
+    db_update_talents_current_status(heroes)
   end
 end
