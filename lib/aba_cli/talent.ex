@@ -31,11 +31,9 @@ defmodule AbaCLI.Talent do
     
     Enum.each heroes, fn hero ->
       hero_name = Map.get(hero, "name")
-      hero_db = AbaModel.Repo.get_by(AbaModel.Hero, name: hero_name)
-      
-      if hero_db == nil do
-        IO.puts "Hero '#{hero_name}' not found in database."
-      else
+      hero_db = AbaModel.Repo.get_by!(AbaModel.Hero, name: hero_name)
+
+      {:ok, _} =
         talents = Map.get(hero, "talents")
         Enum.each talents, fn talent ->
           ability_id = Map.get(talent, "ability")
@@ -96,7 +94,6 @@ defmodule AbaCLI.Talent do
             |> Ecto.Changeset.put_assoc(:talent, talent_db)
             |> AbaModel.Repo.insert_or_update     
         end  
-      end
     end
 
     db_update_talents_current_status(heroes)

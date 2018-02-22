@@ -10,7 +10,7 @@ defmodule AbaCLI.Hero do
       role = Map.get(hero, "role")
       type = Map.get(hero, "type")
 
-      hero_result =
+      {:ok, _} =
         case AbaModel.Repo.get_by(AbaModel.Hero, name: name) do
           nil -> %AbaModel.Hero{
             attribute_id: attribute_id,
@@ -31,11 +31,6 @@ defmodule AbaCLI.Hero do
           type: type
         })
         |> AbaModel.Repo.insert_or_update()
-
-      case hero_result do
-        {:ok, struct} -> IO.inspect struct
-        {:error, changeset} -> IO.inspect changeset
-      end
     end
   end
 end

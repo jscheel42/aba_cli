@@ -1,5 +1,4 @@
 defmodule AbaCLI.Player do
-  import Ecto.Query
   
   def db_update_players(players, replay_db) do
     Enum.each players, fn player ->

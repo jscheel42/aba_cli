@@ -1,5 +1,4 @@
 defmodule AbaCLI.Score do
-  import Ecto.Query
   
   def db_update_score(score, player_db) do
     level = Map.get(score, "level")
@@ -25,7 +24,7 @@ defmodule AbaCLI.Score do
     watch_tower_captures = Map.get(score, "watch_tower_captures")
     meta_experience = Map.get(score, "meta_experience")
 
-    {:ok, score_db} = 
+    {:ok, _} = 
       case AbaModel.Repo.get_by(AbaModel.Score, [player_id: player_db.id]) do
         nil -> %AbaModel.Score{
           level: level,

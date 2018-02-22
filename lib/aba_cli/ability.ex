@@ -22,7 +22,7 @@ defmodule AbaCLI.Ability do
         title = Map.get(ability, "title")
         trait = Map.get(ability, "trait")      
 
-        result =
+        {:ok, _} =
           case AbaModel.Repo.get_by(AbaModel.Ability, [hero_id: hero_id, name: name]) do
             nil -> %AbaModel.Ability{
               cooldown: cooldown,
@@ -51,11 +51,6 @@ defmodule AbaCLI.Ability do
           })
           |> Ecto.Changeset.put_assoc(:hero, hero_db)
           |> AbaModel.Repo.insert_or_update
-  
-        case result do
-          {:ok, struct} -> IO.inspect struct
-          {:error, changeset} -> IO.inspect changeset
-        end
       end
     end
   end

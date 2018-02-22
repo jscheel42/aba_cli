@@ -9,7 +9,7 @@ defmodule AbaCLI.MapTranslation do
       map_db = AbaModel.Repo.get_by!(AbaModel.Map, name: name)
 
       Enum.each translations, fn translation ->
-        translation_result = 
+        {:ok, _} = 
           case AbaModel.Repo.get_by(AbaModel.MapTranslation, name: translation) do
             nil -> %AbaModel.MapTranslation{name: translation}
             translation -> translation
@@ -18,10 +18,6 @@ defmodule AbaCLI.MapTranslation do
           |> AbaModel.MapTranslation.changeset(%{name: translation})
           |> Ecto.Changeset.put_assoc(:map, map_db)
           |> AbaModel.Repo.insert_or_update()
-        case translation_result do
-          {:ok, translation_db} -> IO.inspect translation_db
-          {:error, changeset} -> IO.inspect changeset
-        end
       end
     end
   end
