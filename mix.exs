@@ -32,4 +32,21 @@ defmodule AbaCLI.Mixfile do
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
     ]
   end
+
+  defp docs do
+    [
+      main: "AbaCLI",
+      extras: ["README.md"],
+      output: ["docs"]
+    ]
+  end
+
+  defp package do
+    [
+      licenses: ["MIT"],
+      maintainers: ["Joshua Scheel"],
+      links: %{"Github": "https://github.com/jscheel42/aba_cli",
+               "TravisCI": "https://travis-ci.org/jscheel42/aba_cli"}
+    ]
+  end
 end
