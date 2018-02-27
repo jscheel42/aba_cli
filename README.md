@@ -1,6 +1,9 @@
+[![Build Status](https://travis-ci.org/jscheel42/aba_cli.svg?branch=master)](https://travis-ci.org/jscheel42/aba_cli)
+
 # AbaCLI
 
-[AbaCLI Documentation]
+[Documentation]<br />
+[Package (hex.pm)]
 
 ## Installation
 
@@ -12,4 +15,5 @@ def deps do
 end
 ```
 
-[AbaCLI Documentation]:https://hexdocs.pm/aba_cli
+[Documentation]:https://hexdocs.pm/aba_cli
+[Package (hex.pm)]:https://hex.pm/packages/aba_cli
