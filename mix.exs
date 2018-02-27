@@ -6,6 +6,8 @@ defmodule AbaCLI.Mixfile do
       app: :aba_cli,
       version: "1.0.0",
       elixir: "~> 1.6",
+      name: "AbaCLI",
+      description: "AbaCLI is a tool to update data in an AbaModel database.",
       start_permanent: Mix.env == :prod,
       deps: deps(),
       docs: docs(),
@@ -23,6 +25,7 @@ defmodule AbaCLI.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      { :ex_doc, "~> 0.18", only: :dev },
       # {:aba_api, path: "../aba_api"},
       # {:aba_model, path: "../aba_model"},
       {:aba_api, git: "https://github.com/jscheel42/aba_api.git", branch: "master"},
