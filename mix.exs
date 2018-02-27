@@ -4,10 +4,12 @@ defmodule AbaCLI.Mixfile do
   def project do
     [
       app: :aba_cli,
-      version: "0.1.0",
-      elixir: "~> 1.5",
+      version: "1.0.0",
+      elixir: "~> 1.6",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: docs(),
+      package: package()
     ]
   end
 
